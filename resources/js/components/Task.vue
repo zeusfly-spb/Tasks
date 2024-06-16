@@ -23,6 +23,7 @@
                 <button
                     class="delete-btn"
                     title="Remove task"
+                    @click="markDeleted"
                 >
                     <FontAwesomeIcon :icon="['fas', 'trash']" />
                 </button>
@@ -39,4 +40,5 @@ const props = defineProps({task: {type: Object, default: () => ({})}});
 const {task} = toRefs(props);
 
 const markCompleted = () => emits('complete', task.value.id);
+const markDeleted = () => emits('remove', task.value.id);
 </script>

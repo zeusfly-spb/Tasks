@@ -39,12 +39,17 @@
                 :key="`task-${index}`"
                 :task="task"
                 @complete="showCompleteModal"
+                @remove="showDeleteModal"
             />
             </tbody>
         </table>
         <CompleteModal
             v-model="completeModal"
             @completed="markCompleted"
+        />
+        <DeleteModal
+            v-model="deleteModal"
+            @deleted="removeTask"
         />
     </div>
 </template>
@@ -54,10 +59,12 @@ import axios from "axios";
 import {computed, onMounted, ref} from "vue";
 import Task from "./Task.vue";
 import CompleteModal from "./CompleteModal.vue";
+import DeleteModal from "./DeleteModal.vue";
 
 const tasks = ref([]);
 const name = ref('');
 const completeModal = ref(null);
+const deleteModal = ref(null);
 
 const valid = computed(() => !!name.value);
 
@@ -80,8 +87,9 @@ const addTask = async () => {
     } catch (e) {
         console.error(JSON.stringify(e));
     }
-}
+};
 const showCompleteModal = id => completeModal.value = tasks.value.find(item => item.id === id);
+const showDeleteModal = id => deleteModal.value = tasks.value.find(item => item.id === id);
 const markCompleted = async () => {
     try {
         const {data} = await axios.post('/api/tasks/complete', {id: completeModal.value.id});
@@ -89,7 +97,16 @@ const markCompleted = async () => {
     } catch (e) {
         console.error(JSON.stringify(e));
     }
-}
+};
+const removeTask = async () => {
+    try {
+        const {data: {result}} = await axios.delete(`/api/tasks/${deleteModal.value.id}`);
+        result ? tasks.value = tasks.value.filter(item => item.id !== deleteModal.value.id) : null;
+        deleteModal.value = null;
+    } catch (e) {
+        console.error(e);
+    }
+};
 
 onMounted(async () => await fetchTasks());
 </script>
