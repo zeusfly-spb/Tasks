@@ -14,6 +14,13 @@ class TaskResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        $casts = $this->getCasts();
+        $attributes = parent::toArray($request);
+        foreach ($attributes as $key => $value) {
+            if (isset($casts[$key])) {
+                settype($attributes[$key], $casts[$key]);
+            }
+        }
+        return $attributes;
     }
 }
